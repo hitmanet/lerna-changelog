@@ -202,9 +202,7 @@ export default class Changelog {
 
   private fillInCategories(commits: CommitInfo[]) {
     for (const commit of commits) {
-      if (!commit.githubIssue || !commit.githubIssue.labels) continue;
-
-      const labels = commit.githubIssue.labels.map(label => label.name.toLowerCase());
+      const labels = commit.message.split("(");
 
       commit.categories = Object.keys(this.config.labels)
         .filter(label => labels.indexOf(label.toLowerCase()) !== -1)
