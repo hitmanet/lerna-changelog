@@ -64,11 +64,10 @@ export default class GithubAPI {
     return this._fetch(`https://api.github.com/users/${login}`);
   }
 
-  public async getPullRequests(repo: string, fromDate: string, toDate: string) {
+  public async getPullRequests(repo: string, fromDate: string) {
     const fromDateString = fromDate.split(" ")[0];
-    const toDateString = toDate.split(" ")[0];
     const { items } = await this._fetch(
-      `https://api.github.com/search/issues?q=repo:${repo}+is:pr+is:merged+merged:>${fromDateString}+merged:<=${toDateString}`
+      `https://api.github.com/search/issues?q=repo:${repo}+is:pr+is:merged+merged:>${fromDateString}`
     );
 
     const pullRequests = await Promise.all(
