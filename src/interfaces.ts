@@ -1,4 +1,4 @@
-import { GitHubIssueResponse, GitHubUserResponse } from "./github-api";
+import { GitHubIssueResponse } from "./github-api";
 
 export interface CommitInfo {
   commitSHA: string;
@@ -11,9 +11,15 @@ export interface CommitInfo {
   packages?: string[];
 }
 
+export interface Issue {
+  title: string;
+  packages: string[];
+  username: string;
+  number: string;
+}
+
 export interface Release {
-  name: string;
-  date: string;
-  commits: CommitInfo[];
-  contributors?: GitHubUserResponse[];
+  issues: Issue[];
+  tag: string;
+  releaseDate: string;
 }

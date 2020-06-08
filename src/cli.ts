@@ -23,26 +23,6 @@ export async function run() {
         type: "string",
         desc: "A git tag or commit hash that determines the upper bound of the range of commits",
       },
-      "tag-from": {
-        hidden: true,
-        type: "string",
-        desc: "A git tag that determines the lower bound of the range of commits (defaults to last available)",
-      },
-      "tag-to": {
-        hidden: true,
-        type: "string",
-        desc: "A git tag that determines the upper bound of the range of commits",
-      },
-      "next-version": {
-        type: "string",
-        desc: "The name of the next version",
-        default: "Unreleased",
-      },
-      "next-version-from-metadata": {
-        type: "boolean",
-        desc: "Infer the name of the next version from package metadata",
-        default: false,
-      },
     })
     .example(
       "lerna-changelog",
@@ -57,8 +37,8 @@ export async function run() {
     .parse();
 
   let options = {
-    tagFrom: argv["from"] || argv["tag-from"],
-    tagTo: argv["to"] || argv["tag-to"],
+    tagFrom: argv["from"],
+    tagTo: argv["to"],
   };
 
   try {

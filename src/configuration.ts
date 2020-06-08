@@ -8,6 +8,7 @@ import ConfigurationError from "./configuration-error";
 export interface Configuration {
   repo: string;
   rootPath: string;
+  mainPackage: string;
   labels: { [key: string]: string };
   ignoreCommitters: string[];
   cacheDir?: string;
@@ -31,7 +32,7 @@ export function fromPath(rootPath: string, options: ConfigLoaderOptions = {}): C
   let config = fromPackageConfig(rootPath) || fromLernaConfig(rootPath) || {};
 
   // Step 2: fill partial config with defaults
-  let { repo, nextVersion, labels, cacheDir, ignoreCommitters } = config;
+  let { repo, nextVersion, labels, cacheDir, ignoreCommitters, mainPackage = "main-package" } = config;
 
   if (!repo) {
     repo = findRepo(rootPath);
@@ -71,6 +72,7 @@ export function fromPath(rootPath: string, options: ConfigLoaderOptions = {}): C
 
   return {
     repo,
+    mainPackage,
     nextVersion,
     rootPath,
     labels,

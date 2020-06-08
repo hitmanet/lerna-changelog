@@ -1,8 +1,13 @@
 const execa = require("execa");
+const execSync = require("child_process").execSync;
 
 export async function changedPaths(sha: string): Promise<string[]> {
-  const result = await execa("git", ["show", "-m", "--name-only", "--pretty=format:", "--first-parent", sha]);
-  return result.stdout.split("\n");
+  try {
+    const result = await execa("git", ["show", "-m", "--name-only", "--pretty=format:", "--first-parent", sha]);
+    return result.stdout.split("\n");
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -15,11 +20,27 @@ export function listTagNames(): string[] {
     .filter(Boolean);
 }
 
-/**
- * The latest reachable tag starting from HEAD
- */
-export function lastTag(): string {
-  return execa.sync("git", ["describe", "--abbrev=0", "--tags"]).stdout;
+export function getPackageTags(mainPackage: string): string {
+  return execSync(`git for-each-ref --sort=creatordate --format '%(tag)' | grep "${mainPackage}"`)
+    .toString()
+    .split("\n")
+    .filter((tag: string) => tag.length > 0);
+}
+
+export function getDateByTag(tag: string): string {
+  return execa.sync("git", ["log", "-1", "--format=%ai", tag]).stdout;
+}
+
+export function lastTag(mainPackage: string): string {
+  const mainPackageTags = getPackageTags(mainPackage);
+  const lastTag = mainPackageTags[mainPackageTags.length - 1];
+  return lastTag;
+}
+
+export function previousTagDate(mainPackage: string = "vega-ui"): string {
+  const mainPackageTags = getPackageTags(mainPackage);
+  const previousTag = mainPackageTags[mainPackageTags.length - 2];
+  return getDateByTag(previousTag);
 }
 
 export interface CommitListItem {
