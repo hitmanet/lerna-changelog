@@ -41,8 +41,8 @@ export default class Changelog {
     return this.renderer.renderMarkdown(release);
   }
 
-  private async getIssuesInfo(from: string): Promise<Issue[]> {
-    const issues = await this.github.getPullRequests(this.config.repo, from);
+  private async getIssuesInfo(from: string, to: string): Promise<Issue[]> {
+    const issues = await this.github.getPullRequests(this.config.repo, from, to);
     const issuesByCategories = issues.map((issue: any) => {
       const packages = issue.files.map((file: string) => this.packageFromPath(file));
       issue.packages = packages.filter(onlyUnique).filter((p: string) => p.length > 0 && p !== "components");
@@ -53,7 +53,7 @@ export default class Changelog {
   }
 
   private async getRelease(from: string, to: string): Promise<Release> {
-    const issues = await this.getIssuesInfo(from);
+    const issues = await this.getIssuesInfo(from, to);
 
     const releaseTag = Git.lastTag(this.config.mainPackage);
 
