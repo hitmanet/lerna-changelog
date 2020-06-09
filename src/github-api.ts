@@ -65,7 +65,8 @@ export default class GithubAPI {
   }
 
   public async getPullRequests(repo: string, fromDate: string) {
-    const fromDateString = fromDate.split(" ")[0];
+    const date = fromDate.split(" ");
+    const fromDateString = `${date[0]}T${date[1]}Z`;
     const { items } = await this._fetch(
       `https://api.github.com/search/issues?q=repo:${repo}+is:pr+is:merged+merged:>${fromDateString}`
     );

@@ -26,7 +26,7 @@ export default class MarkdownRenderer {
     return issues
       .map((issue: Issue) => {
         const packages = issue.packages.map(pkg => `\`${pkg}\``).join(", ");
-        return `* ${issue.title} [#${issue.number}](https://github.com/${this.options.repo}/pull/${issue.number})\n &nbsp* Измененные пакеты: ${packages}\n &nbsp* Автор PR: [@${issue.username}](https://github.com/${issue.username})`;
+        return `* ${issue.title} [#${issue.number}](https://github.com/${this.options.repo}/pull/${issue.number})\n   * Измененные пакеты: ${packages}\n   * Автор PR: [@${issue.username}](https://github.com/${issue.username})`;
       })
       .join("\n\n");
   }
