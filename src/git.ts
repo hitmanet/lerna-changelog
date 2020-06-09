@@ -20,24 +20,33 @@ export function listTagNames(): string[] {
     .filter(Boolean);
 }
 
-export function getPackageTags(mainPackage: string): string {
-  return execSync(`git for-each-ref --sort=creatordate --format '%(tag)' | grep "${mainPackage}"`)
-    .toString()
-    .split("\n")
-    .filter((tag: string) => tag.length > 0);
+export function getPackageTags(mainPackage?: string): string {
+  const getPackageCommand = `git for-each-ref --sort=creatordate --format '%(tag)'`;
+
+  const exec = (command: string) =>
+    execSync(command)
+      .toString()
+      .split("\n")
+      .filter((result: string) => result.length > 0);
+
+  if (mainPackage) {
+    return exec(`${getPackageCommand} | grep ${mainPackage}`);
+  }
+
+  return exec(getPackageCommand);
 }
 
 export function getDateByTag(tag: string): string {
   return execa.sync("git", ["log", "-1", "--format=%ai", tag]).stdout;
 }
 
-export function lastTag(mainPackage: string): string {
+export function lastTag(mainPackage?: string): string {
   const mainPackageTags = getPackageTags(mainPackage);
   const lastTag = mainPackageTags[mainPackageTags.length - 1];
   return lastTag;
 }
 
-export function previousTagDate(mainPackage: string = "vega-ui"): string {
+export function previousTagDate(mainPackage?: string): string {
   const mainPackageTags = getPackageTags(mainPackage);
   const previousTag = mainPackageTags[mainPackageTags.length - 2];
   return getDateByTag(previousTag);
