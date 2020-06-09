@@ -25,10 +25,20 @@ export default class Changelog {
     });
   }
 
+  private async getFrom(options: Options): Promise<string> {
+    if (options.tagFrom) {
+      return await Git.getDateByTag(options.tagFrom);
+    }
+
+    if (this.config.mainPackage) {
+      return await Git.previousTagDate(this.config.mainPackage);
+    }
+
+    return await Git.previousTagDate();
+  }
+
   public async createMarkdown(options: Options = {}) {
-    const from = options.tagFrom
-      ? await Git.getDateByTag(options.tagFrom)
-      : await Git.previousTagDate(this.config.mainPackage);
+    const from = await this.getFrom(options);
 
     const to = await Git.getDateByTag(options.tagTo || "HEAD");
 
@@ -42,14 +52,25 @@ export default class Changelog {
   }
 
   private async getIssuesInfo(from: string, to: string): Promise<Issue[]> {
+    const isMonorepo = this.config.mode === "monorepo";
     const issues = await this.github.getPullRequests(this.config.repo, from, to);
     const issuesByCategories = issues.map((issue: any) => {
       const packages = issue.files.map((file: string) => this.packageFromPath(file));
-      issue.packages = packages.filter(onlyUnique).filter((p: string) => p.length > 0 && p !== "components");
+      if (isMonorepo) {
+        issue.packages = packages
+          .filter(onlyUnique)
+          .filter((p: string) => p.length > 0 && !this.config.ignorePaths.includes(p));
+      }
       return { title: issue.title, packages: issue.packages, username: issue.username, number: issue.number };
     });
 
-    return issuesByCategories.filter((issue: Issue) => issue.packages.length > 0);
+    if (this.config.mode === "monorepo") {
+      return issuesByCategories.filter((issue: Issue) => issue.packages && issue.packages.length > 0);
+    }
+
+    console.log(issuesByCategories);
+
+    return issuesByCategories;
   }
 
   private async getRelease(from: string, to: string): Promise<Release> {
@@ -66,7 +87,7 @@ export default class Changelog {
       return "";
     }
 
-    if (parts.length >= 4 && parts[1] === "components") {
+    if (parts.length >= 4 && this.config.ignorePaths.includes(parts[1])) {
       return `${parts[2]}`;
     }
 

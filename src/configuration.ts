@@ -7,13 +7,15 @@ import ConfigurationError from "./configuration-error";
 
 export interface Configuration {
   repo: string;
+  mode: "repo" | "monorepo";
   rootPath: string;
-  mainPackage: string;
+  mainPackage?: string;
   labels: { [key: string]: string };
   ignoreCommitters: string[];
   cacheDir?: string;
   nextVersion: string | undefined;
   nextVersionFromMetadata?: boolean;
+  ignorePaths: string[];
 }
 
 export interface ConfigLoaderOptions {
@@ -29,10 +31,19 @@ export function load(options: ConfigLoaderOptions = {}): Configuration {
 
 export function fromPath(rootPath: string, options: ConfigLoaderOptions = {}): Configuration {
   // Step 1: load partial config from `package.json` or `lerna.json`
-  let config = fromPackageConfig(rootPath) || fromLernaConfig(rootPath) || {};
+  let config = fromPackageConfig(rootPath) || fromConfig(rootPath) || {};
 
   // Step 2: fill partial config with defaults
-  let { repo, nextVersion, labels, cacheDir, ignoreCommitters, mainPackage = "main-package" } = config;
+  let {
+    repo,
+    nextVersion,
+    labels,
+    cacheDir,
+    ignoreCommitters,
+    mainPackage,
+    mode = "monorepo",
+    ignorePaths = [],
+  } = config;
 
   if (!repo) {
     repo = findRepo(rootPath);
@@ -74,17 +85,19 @@ export function fromPath(rootPath: string, options: ConfigLoaderOptions = {}): C
     repo,
     mainPackage,
     nextVersion,
+    ignorePaths,
     rootPath,
     labels,
+    mode,
     ignoreCommitters,
     cacheDir,
   };
 }
 
-function fromLernaConfig(rootPath: string): Partial<Configuration> | undefined {
-  const lernaPath = path.join(rootPath, "lerna.json");
-  if (fs.existsSync(lernaPath)) {
-    return JSON.parse(fs.readFileSync(lernaPath)).changelog;
+function fromConfig(rootPath: string): Partial<Configuration> | undefined {
+  const configPath = path.join(rootPath, "changelog.config.js");
+  if (fs.existsSync(configPath)) {
+    return require(configPath);
   }
 }
 

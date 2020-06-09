@@ -1,6 +1,6 @@
 export interface Issue {
   title: string;
-  packages: string[];
+  packages?: string[];
   username: string;
   number: string;
 }
