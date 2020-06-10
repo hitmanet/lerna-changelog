@@ -1,6 +1,6 @@
 {
   "name": "@hitmanet808/lerna-changelog",
-  "version": "3.0.1-0",
+  "version": "3.0.1",
   "description": "Generate a changelog for a lerna monorepo",
   "keywords": [
     "changelog",
