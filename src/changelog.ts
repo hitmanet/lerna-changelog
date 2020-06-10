@@ -68,8 +68,6 @@ export default class Changelog {
       return issuesByCategories.filter((issue: Issue) => issue.packages && issue.packages.length > 0);
     }
 
-    console.log(issuesByCategories);
-
     return issuesByCategories;
   }
 

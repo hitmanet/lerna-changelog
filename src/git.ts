@@ -48,7 +48,6 @@ export function lastTag(mainPackage?: string): string {
 
 export function previousTagDate(mainPackage?: string): string {
   const mainPackageTags = getPackageTags(mainPackage);
-  console.log(mainPackageTags);
   const previousTag = mainPackageTags[mainPackageTags.length - 2];
   return getDateByTag(previousTag);
 }
